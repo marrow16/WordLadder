@@ -61,14 +61,6 @@ public class Word {
         return result;
     }
 
-    public int similarities(Word other) {
-        int result = 0;
-        for (int ch = 0; ch < wordChars.length; ch++) {
-            result += (wordChars[ch] == other.wordChars[ch] ? 1 : 0);
-        }
-        return result;
-    }
-
     public int firstDifference(Word other) {
         int result = -1;
         for (int ch = 0; ch < wordChars.length; ch++) {

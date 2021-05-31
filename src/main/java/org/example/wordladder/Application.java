@@ -1,7 +1,5 @@
 package org.example.wordladder;
 
-import org.example.wordladder.words.Dictionary;
-
 public class Application {
     public static final String MAX_LADDER_ARG_NAME = "-maxLadder";
 

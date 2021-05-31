@@ -55,7 +55,7 @@ public class InteractiveCli {
             }
             if (args.length > 2 && args[2].startsWith(MAX_LADDER_ARG_NAME + "=")) {
                 try {
-                    Integer maxLadder = Integer.parseInt(args[2].substring(MAX_LADDER_ARG_NAME.length() + 1));
+                    int maxLadder = Integer.parseInt(args[2].substring(MAX_LADDER_ARG_NAME.length() + 1));
                     if (maxLadder < 0) {
                         throw new NumberFormatException("Max ladder cannot be less than 0 (zero)");
                     }
@@ -94,7 +94,7 @@ public class InteractiveCli {
                 if (minimumLadderLength.isPresent()) {
                     System.out.println("Took " + TERMINAL_COLOUR_GREEN + (endTime - startTime) + "ms" + TERMINAL_COLOUR_BLACK +
                             " to determine minimum ladder length of " + TERMINAL_COLOUR_GREEN + minimumLadderLength.get() + TERMINAL_COLOUR_BLACK);
-                    options.setMaximumLadderLength(minimumLadderLength.get().intValue());
+                    options.setMaximumLadderLength(minimumLadderLength.get());
                 } else {
                     System.out.println(TERMINAL_COLOUR_RED + "Puzzle '" + puzzle.getStartWord() + "' to '" + puzzle.getFinalWord() + "'" +
                             " is not solvable!" +TERMINAL_COLOUR_BLACK +
@@ -149,7 +149,7 @@ public class InteractiveCli {
                     try {
                         limit = Long.parseLong(more);
                     } catch (NumberFormatException e) {
-                        limit = 10;
+                        // ignore
                     }
                 }
                 solutions.stream()
