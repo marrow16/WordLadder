@@ -11,10 +11,10 @@ public class Solver {
     private final Options options;
     private final AtomicLong exploredCount = new AtomicLong();
     private final List<Solution> solutions = new ArrayList<>();
-
     private Word beginWord;
     private Word endWord;
     private boolean reversed;
+    private Map<Word, Integer> endDistances;
 
     public Solver(Puzzle puzzle, Options options) {
         this.puzzle = puzzle;
@@ -64,8 +64,11 @@ public class Solver {
             beginWord = puzzle.getFinalWord();
             endWord = puzzle.getStartWord();
         }
+        endDistances = buildDistances(endWord);
         beginWord.getLinkedWords()
                 .parallelStream()
+                .filter(linkedWord -> endDistances.containsKey(linkedWord))
+                .filter(linkedWord -> endDistances.get(linkedWord) <= options.getMaximumLadderLength())
                 .map(linkedWord -> new CandidateSolution(this, beginWord, linkedWord))
                 .forEach(this::solve);
     }
@@ -78,6 +81,8 @@ public class Solver {
             lastWord.getLinkedWords()
                     .parallelStream()
                     .filter(linkedWord -> !candidate.seenWords.contains(linkedWord))
+                    .filter(linkedWord -> endDistances.containsKey(linkedWord))
+                    .filter(linkedWord -> (endDistances.get(linkedWord) + candidate.ladder.size()) <= options.getMaximumLadderLength())
                     .map(linkedWord -> new CandidateSolution(candidate, linkedWord))
                     .forEach(this::solve);
         }
@@ -122,23 +127,28 @@ public class Solver {
             end = puzzle.getStartWord();
             start = puzzle.getFinalWord();
         }
-        Map<Word, Integer> distances = new HashMap<>();
-        distances.put(start, 1);
-        Queue<Word> queue = new ArrayDeque<>();
-        queue.add(start);
-        while (!queue.isEmpty()) {
-            Word word = queue.remove();
-            word.getLinkedWords().stream()
-                    .filter(linkedWord -> !distances.containsKey(linkedWord))
-                    .forEach(linkedWord -> {
-                        queue.add(linkedWord);
-                        distances.computeIfAbsent(linkedWord, w -> 1 + distances.get(word));
-                    });
-        }
+        Map<Word, Integer> distances = buildDistances(start);
         return Optional.ofNullable(distances.get(end));
     }
 
     public boolean isSolvable() {
         return calculateMinimumLadderLength().isPresent();
+    }
+
+    private Map<Word, Integer> buildDistances(Word word) {
+        Map<Word, Integer> result = new HashMap<>();
+        result.put(word, 1);
+        Queue<Word> queue = new ArrayDeque<>();
+        queue.add(word);
+        while (!queue.isEmpty()) {
+            Word nextWord = queue.remove();
+            nextWord.getLinkedWords().stream()
+                    .filter(linkedWord -> !result.containsKey(linkedWord))
+                    .forEach(linkedWord -> {
+                        queue.add(linkedWord);
+                        result.computeIfAbsent(linkedWord, w -> 1 + result.get(nextWord));
+                    });
+        }
+        return result;
     }
 }

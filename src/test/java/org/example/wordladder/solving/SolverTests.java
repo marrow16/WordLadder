@@ -203,4 +203,25 @@ public class SolverTests {
         assertEquals(0, solutions.size());
         assertEquals(0, solver.getExploredCount());
     }
+
+    @Test
+    public void optimizedSmartToMoney() {
+        Options options = new Options();
+        Puzzle puzzle = new Puzzle("smart", "money");
+        Solver solver = new Solver(puzzle, options);
+
+        Optional<Integer> minimumLadderLength = solver.calculateMinimumLadderLength();
+        assertTrue(minimumLadderLength.isPresent());
+        assertEquals((Integer)10, minimumLadderLength.get());
+
+        options.setMaximumLadderLength(minimumLadderLength.get());
+        solver.solve();
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(24, solutions.size());
+
+        options.setMaximumLadderLength(minimumLadderLength.get() - 1);
+        solver.solve();
+        solutions = solver.getSolutions();
+        assertTrue(solutions.isEmpty());
+    }
 }
