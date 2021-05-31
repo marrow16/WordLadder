@@ -239,7 +239,7 @@ public class InteractiveCli {
                     break;
                 case GET_MAXIMUM_LADDER_LENGTH:
                     if (input.isEmpty()) {
-                        System.out.println(TERMINAL_COLOUR_GREEN + "            No answer - assuming 0 (auto calc minimum ladder length)" + TERMINAL_COLOUR_BLACK);
+                        System.out.println(TERMINAL_COLOUR_GREEN + "            No answer - assuming auto calc of minimum ladder length" + TERMINAL_COLOUR_BLACK);
                         options.setMaximumLadderLength(0);
                     } else {
                         try {
