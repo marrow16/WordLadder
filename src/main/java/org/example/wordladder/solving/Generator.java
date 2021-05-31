@@ -7,12 +7,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Generator {
-    private final int wordLength;
     private final int ladderLength;
     private final Dictionary dictionary;
 
     public Generator(int wordLength, int ladderLength) {
-        this.wordLength = wordLength;
         this.ladderLength = ladderLength;
         dictionary = Dictionary.Factory.forWordLength(wordLength);
     }

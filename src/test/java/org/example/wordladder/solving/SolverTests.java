@@ -61,6 +61,29 @@ public class SolverTests {
     }
 
     @Test
+    public void solveColdToWarmAndWarmToCold() {
+        Options options = new Options();
+        options.setMaximumLadderLength(5);
+
+        Puzzle puzzle = new Puzzle("cold", "warm");
+        Solver solver = new Solver(puzzle, options);
+
+        solver.solve();
+
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(7, solutions.size());
+        long explored1 = solver.getExploredCount();
+
+        // now do it the other way around..
+        puzzle = new Puzzle("warm", "cold");
+        solver = new Solver(puzzle, options);
+        solver.solve();
+        solutions = solver.getSolutions();
+        assertEquals(7, solutions.size());
+        assertEquals(explored1, solver.getExploredCount());
+    }
+
+    @Test
     public void solveKataToJava() {
         Options options = new Options();
         options.setMaximumLadderLength(3);
@@ -103,6 +126,81 @@ public class SolverTests {
 
         Optional<Integer> minimumLadderLength = solver.calculateMinimumLadderLength();
         assertFalse(minimumLadderLength.isPresent());
+
+        // do it again using short-cut method
+        assertFalse(solver.isSolvable());
     }
 
+    @Test
+    public void sameWordIsSolvable() {
+        Options options = new Options();
+        Puzzle puzzle = new Puzzle("cat", "cat");
+        Solver solver = new Solver(puzzle, options);
+
+        solver.solve();
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(1, solutions.size());
+        assertEquals(0, solver.getExploredCount());
+    }
+
+    @Test
+    public void oneLetterDifferenceIsSolvable() {
+        Options options = new Options();
+        options.setMaximumLadderLength(2);
+        Puzzle puzzle = new Puzzle("cat", "cot");
+        Solver solver = new Solver(puzzle, options);
+
+        solver.solve();
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(1, solutions.size());
+        assertEquals(0, solver.getExploredCount());
+    }
+
+    @Test
+    public void twoLettersDifferenceIsSolvable() {
+        Options options = new Options();
+        options.setMaximumLadderLength(3);
+        Puzzle puzzle = new Puzzle("cat", "bar");
+        Solver solver = new Solver(puzzle, options);
+
+        solver.solve();
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(2, solutions.size());
+        assertEquals(0, solver.getExploredCount());
+    }
+
+    @Test
+    public void shortCircuitsOnGetMaxLadderLength() {
+        Options options = new Options();
+        Puzzle puzzle = new Puzzle("cat", "bar");
+        Solver solver = new Solver(puzzle, options);
+        Optional<Integer> maximumLadderLength = solver.calculateMinimumLadderLength();
+        assertTrue(maximumLadderLength.isPresent());
+        assertEquals((Integer)3, maximumLadderLength.get());
+
+        puzzle = new Puzzle("cat", "bat");
+        solver = new Solver(puzzle, options);
+        maximumLadderLength = solver.calculateMinimumLadderLength();
+        assertTrue(maximumLadderLength.isPresent());
+        assertEquals((Integer)2, maximumLadderLength.get());
+
+        puzzle = new Puzzle("cat", "cat");
+        solver = new Solver(puzzle, options);
+        maximumLadderLength = solver.calculateMinimumLadderLength();
+        assertTrue(maximumLadderLength.isPresent());
+        assertEquals((Integer)1, maximumLadderLength.get());
+    }
+
+    @Test
+    public void everythingUnsolvableWithBadMaxLadderLength() {
+        Options options = new Options();
+        options.setMaximumLadderLength(0);
+        Puzzle puzzle = new Puzzle("cat", "dog");
+        Solver solver = new Solver(puzzle, options);
+
+        solver.solve();
+        List<Solution> solutions = solver.getSolutions();
+        assertEquals(0, solutions.size());
+        assertEquals(0, solver.getExploredCount());
+    }
 }

@@ -24,28 +24,50 @@ public class Solver {
     public void solve() {
         exploredCount.set(0);
         solutions.clear();
+        if (options.getMaximumLadderLength() < 1) {
+            // won't find any solutions with ladder of length 0!...
+            return;
+        }
         beginWord = puzzle.getStartWord();
         endWord = puzzle.getFinalWord();
         reversed = false;
-        if (beginWord.equals(endWord)) {
-            // same word - so there's only one solution...
-            solutions.add(new Solution(beginWord));
-        } else if (beginWord.differences(endWord) == 1) {
-            // the two words are only one letter different - so there's only one solution needed (no point going round the houses!)...
-            solutions.add(new Solution(beginWord, endWord));
-        } else {
-            // begin with the word that has the least number of linked words...
-            // (this limits the number of pointless candidates explored!)
-            reversed = beginWord.getLinkedWords().size() > endWord.getLinkedWords().size();
-            if (reversed) {
-                beginWord = puzzle.getFinalWord();
-                endWord = puzzle.getStartWord();
-            }
-            beginWord.getLinkedWords()
-                    .parallelStream()
-                    .map(linkedWord -> new CandidateSolution(this, beginWord, linkedWord))
-                    .forEach(this::solve);
+        // check for short-circuits...
+        int differences = beginWord.differences(endWord);
+        switch (differences) {
+            case 0:
+                // same word - so there's only one solution...
+                solutions.add(new Solution(beginWord));
+                return;
+            case 1:
+                // the two words are only one letter different...
+                if (options.getMaximumLadderLength() == 2) {
+                    // maximum ladder is 2 so we already have the only answer...
+                    solutions.add(new Solution(beginWord, endWord));
+                    return;
+                }
+            case 2:
+                if (options.getMaximumLadderLength() == 3) {
+                    // the two words are only two letters different and maximum ladder is 3...
+                    // so we can determine solutions by convergence of the two linked word sets...
+                    Set<Word> startLinkedWords = new HashSet<>(beginWord.getLinkedWords());
+                    startLinkedWords.retainAll(endWord.getLinkedWords());
+                    for (Word intermediateWord: startLinkedWords) {
+                        solutions.add(new Solution(beginWord, intermediateWord, endWord));
+                    }
+                    return;
+                }
         }
+        // begin with the word that has the least number of linked words...
+        // (this limits the number of pointless candidates explored!)
+        reversed = beginWord.getLinkedWords().size() > endWord.getLinkedWords().size();
+        if (reversed) {
+            beginWord = puzzle.getFinalWord();
+            endWord = puzzle.getStartWord();
+        }
+        beginWord.getLinkedWords()
+                .parallelStream()
+                .map(linkedWord -> new CandidateSolution(this, beginWord, linkedWord))
+                .forEach(this::solve);
     }
 
     private void solve(CandidateSolution candidate) {
@@ -81,8 +103,22 @@ public class Solver {
     public Optional<Integer> calculateMinimumLadderLength() {
         Word start = puzzle.getStartWord();
         Word end = puzzle.getFinalWord();
-        boolean inReverse = start.getLinkedWords().size() > end.getLinkedWords().size();
-        if (inReverse) {
+        // check for short-circuits...
+        int differences = start.differences(end);
+        switch (differences) {
+            case 0:
+            case 1:
+                return Optional.of(differences + 1);
+            case 2:
+                Set<Word> startLinkedWords = new HashSet<>(start.getLinkedWords());
+                startLinkedWords.retainAll(end.getLinkedWords());
+                if (!startLinkedWords.isEmpty()) {
+                    return Optional.of(3);
+                }
+                break;
+        }
+        if (start.getLinkedWords().size() > end.getLinkedWords().size()) {
+            // swap start and end word...
             end = puzzle.getStartWord();
             start = puzzle.getFinalWord();
         }

@@ -56,5 +56,8 @@ public class WordTests {
         assertTrue(word1.equals(word2));
         Word word3 = new Word("dog");
         assertFalse(word1.equals(word3));
+
+        assertFalse(word1.equals(null));
+        assertFalse(word1.equals(new Object()));
     }
 }
