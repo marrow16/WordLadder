@@ -3,10 +3,15 @@ package org.example.wordladder.solving;
 import org.example.wordladder.words.Dictionary;
 import org.example.wordladder.words.Word;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public class Generator {
+    private static final Random RANDOM = new Random();
+
     private final int ladderLength;
     private final Dictionary dictionary;
 
@@ -32,10 +37,9 @@ public class Generator {
 
     private Word randomWord() {
         List<Word> words = new ArrayList<>(dictionary.getWords());
-        Random random = new Random();
-        Word result = words.get(random.nextInt(words.size()));
+        Word result = words.get(RANDOM.nextInt(words.size()));
         while (result.isIslandWord()) {
-            result = words.get(random.nextInt(words.size()));
+            result = words.get(RANDOM.nextInt(words.size()));
         }
         return result;
     }
@@ -47,11 +51,10 @@ public class Generator {
                 .filter(word -> !word.isIslandWord() && !seenWords.contains(word))
                 .filter(word -> changeAt == -1 || changeAt != word.firstDifference(fromWord))
                 .filter(word -> word.differences(firstWord) >= delta)
-                .collect(Collectors.toList());
+                .toList();
         if (candidates.isEmpty()) {
             throw new IllegalStateException("Oops! Sorry, couldn't generate word ladder - please retry");
         }
-        Random random = new Random();
-        return candidates.get(random.nextInt(candidates.size()));
+        return candidates.get(RANDOM.nextInt(candidates.size()));
     }
 }

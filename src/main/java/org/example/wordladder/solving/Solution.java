@@ -36,4 +36,21 @@ public class Solution {
     public String toString() {
         return ladder.toString();
     }
+
+    /**
+     * Compare solutions for sorting
+     * @param other the other solution to be compared with
+     * @return 0, 1 or -1 (comparison)
+     */
+    public int compareTo(Solution other) {
+        int sizeCompare = Integer.compare(ladder.size(), other.ladder.size());
+        if (sizeCompare == 0) {
+            int wordCompare = 0;
+            for (int w = 0; w < (ladder.size() - 1) && wordCompare == 0; w++) {
+                wordCompare = ladder.get(w).toString().compareTo(other.ladder.get(w).toString());
+            }
+            return wordCompare;
+        }
+        return sizeCompare;
+    }
 }

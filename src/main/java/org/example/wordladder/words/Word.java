@@ -16,7 +16,8 @@ public class Word {
 
     Word(String actualWord) {
         if (actualWord.indexOf(VARIATION_CHAR) != -1) {
-            throw new BadWordException("Word '" + actualWord + "' cannot contain reserved character '" + VARIATION_CHAR + "'");
+            throw new BadWordException("Word '" + actualWord
+                    + "' cannot contain reserved character '" + VARIATION_CHAR + "'");
         }
         this.actualWord = actualWord.toUpperCase();
         this.wordChars = this.actualWord.toCharArray();

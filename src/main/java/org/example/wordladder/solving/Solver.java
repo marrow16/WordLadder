@@ -3,7 +3,11 @@ package org.example.wordladder.solving;
 import org.example.wordladder.Puzzle;
 import org.example.wordladder.words.Word;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Solver {
@@ -14,7 +18,9 @@ public class Solver {
     private Word beginWord;
     private Word endWord;
     private boolean reversed;
-    private Map<Word, Integer> endDistances;
+
+    private int maximumLadderLength;
+    private WordDistanceMap endDistances;
 
     public Solver(Puzzle puzzle, Options options) {
         this.puzzle = puzzle;
@@ -24,7 +30,8 @@ public class Solver {
     public void solve() {
         exploredCount.set(0);
         solutions.clear();
-        if (options.getMaximumLadderLength() < 1) {
+        maximumLadderLength = options.getMaximumLadderLength();
+        if (maximumLadderLength < 1) {
             // won't find any solutions with ladder of length 0!...
             return;
         }
@@ -40,13 +47,13 @@ public class Solver {
                 return;
             case 1:
                 // the two words are only one letter different...
-                if (options.getMaximumLadderLength() == 2) {
+                if (maximumLadderLength == 2) {
                     // maximum ladder is 2 so we already have the only answer...
                     solutions.add(new Solution(beginWord, endWord));
                     return;
                 }
             case 2:
-                if (options.getMaximumLadderLength() == 3) {
+                if (maximumLadderLength == 3) {
                     // the two words are only two letters different and maximum ladder is 3...
                     // so we can determine solutions by convergence of the two linked word sets...
                     Set<Word> startLinkedWords = new HashSet<>(beginWord.getLinkedWords());
@@ -64,11 +71,11 @@ public class Solver {
             beginWord = puzzle.getFinalWord();
             endWord = puzzle.getStartWord();
         }
-        endDistances = buildDistances(endWord);
+        endDistances = new WordDistanceMap(endWord);
+        endDistances.setMaximumLadderLength(maximumLadderLength);
         beginWord.getLinkedWords()
                 .parallelStream()
-                .filter(linkedWord -> endDistances.containsKey(linkedWord))
-                .filter(linkedWord -> endDistances.get(linkedWord) <= options.getMaximumLadderLength())
+                .filter(endDistances::reachable)
                 .map(linkedWord -> new CandidateSolution(this, beginWord, linkedWord))
                 .forEach(this::solve);
     }
@@ -77,18 +84,17 @@ public class Solver {
         Word lastWord = candidate.ladder.get(candidate.ladder.size() - 1);
         if (lastWord.equals(endWord)) {
             foundSolution(candidate);
-        } else if (candidate.ladder.size() < options.getMaximumLadderLength()) {
+        } else if (candidate.ladder.size() < maximumLadderLength) {
             lastWord.getLinkedWords()
                     .parallelStream()
                     .filter(linkedWord -> !candidate.seenWords.contains(linkedWord))
-                    .filter(linkedWord -> endDistances.containsKey(linkedWord))
-                    .filter(linkedWord -> (endDistances.get(linkedWord) + candidate.ladder.size()) <= options.getMaximumLadderLength())
+                    .filter(linkedWord -> endDistances.reachable(linkedWord, candidate.ladder.size()))
                     .map(linkedWord -> new CandidateSolution(candidate, linkedWord))
                     .forEach(this::solve);
         }
     }
 
-    synchronized private void foundSolution(CandidateSolution candidate) {
+    private synchronized void foundSolution(CandidateSolution candidate) {
         Solution solution = new Solution(candidate, reversed);
         solutions.add(solution);
     }
@@ -111,8 +117,7 @@ public class Solver {
         // check for short-circuits...
         int differences = start.differences(end);
         switch (differences) {
-            case 0:
-            case 1:
+            case 0, 1:
                 return Optional.of(differences + 1);
             case 2:
                 Set<Word> startLinkedWords = new HashSet<>(start.getLinkedWords());
@@ -127,28 +132,10 @@ public class Solver {
             end = puzzle.getStartWord();
             start = puzzle.getFinalWord();
         }
-        Map<Word, Integer> distances = buildDistances(start);
-        return Optional.ofNullable(distances.get(end));
+        return new WordDistanceMap(start).getDistance(end);
     }
 
     public boolean isSolvable() {
         return calculateMinimumLadderLength().isPresent();
-    }
-
-    private Map<Word, Integer> buildDistances(Word word) {
-        Map<Word, Integer> result = new HashMap<>();
-        result.put(word, 1);
-        Queue<Word> queue = new ArrayDeque<>();
-        queue.add(word);
-        while (!queue.isEmpty()) {
-            Word nextWord = queue.remove();
-            nextWord.getLinkedWords().stream()
-                    .filter(linkedWord -> !result.containsKey(linkedWord))
-                    .forEach(linkedWord -> {
-                        queue.add(linkedWord);
-                        result.computeIfAbsent(linkedWord, w -> 1 + result.get(nextWord));
-                    });
-        }
-        return result;
     }
 }

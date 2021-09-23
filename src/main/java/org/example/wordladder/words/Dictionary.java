@@ -4,12 +4,16 @@ import org.example.wordladder.exceptions.BadWordException;
 import org.example.wordladder.exceptions.DictionaryLoadErrorException;
 import org.example.wordladder.exceptions.NoResourceForDictionaryException;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Dictionary {
     private static final String RESOURCE_NAME_SUFFIX = "-letter-words.txt";
@@ -26,7 +30,8 @@ public class Dictionary {
     private void loadWordsFromResources() {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(wordLength + RESOURCE_NAME_SUFFIX);
         if (resource == null) {
-            throw new NoResourceForDictionaryException("Dictionary resource for word length " + wordLength + " does not exist");
+            throw new NoResourceForDictionaryException("Dictionary resource for word length "
+                    + wordLength + " does not exist");
         }
         try {
             Files.lines(Paths.get(resource.toURI()))
@@ -39,7 +44,8 @@ public class Dictionary {
     private void addWord(String word) {
         if (!word.isEmpty()) {
             if (word.length() != wordLength) {
-                throw new BadWordException("Word '" + word + "' (length = " + word.length() + ") cannot be loaded into " + wordLength + " letter word dictionary");
+                throw new BadWordException("Word '" + word + "' (length = "
+                        + word.length() + ") cannot be loaded into " + wordLength + " letter word dictionary");
             }
             String upperWord = word.toUpperCase();
             words.put(upperWord, new Word(upperWord));
@@ -77,14 +83,14 @@ public class Dictionary {
     }
 
     public static class Factory {
-        private static final Map<Integer, Dictionary> cache = new HashMap<>();
+        private static final Map<Integer, Dictionary> CACHE = new HashMap<>();
 
         public static Dictionary fromWord(String word) {
             return forWordLength(word.length());
         }
 
         public static Dictionary forWordLength(int wordLength) {
-            return cache.computeIfAbsent(wordLength, integer -> new Dictionary(wordLength));
+            return CACHE.computeIfAbsent(wordLength, integer -> new Dictionary(wordLength));
         }
     }
 }

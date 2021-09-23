@@ -31,9 +31,11 @@ public class Puzzle {
         this.dictionary = Dictionary.Factory.fromWord(startWord);
         this.startWord = this.dictionary.getWord(startWord);
         if (this.startWord == null) {
-            throw new PuzzleErrorException("Start word '" + startWord.toUpperCase() + "' not found in dictionary");
+            throw new PuzzleErrorException("Start word '" + startWord.toUpperCase()
+                    + "' not found in dictionary");
         } else if (this.startWord.isIslandWord()) {
-            throw new PuzzleErrorException("Start word '" + startWord.toUpperCase() + "' is an island word (varying any character does not create another valid word)");
+            throw new PuzzleErrorException("Start word '" + startWord.toUpperCase()
+                    + "' is an island word (varying any character does not create another valid word)");
         }
     }
 
@@ -42,13 +44,17 @@ public class Puzzle {
             throw new PuzzleErrorException("Start word has not been set yet!");
         }
         if (finalWord.length() != dictionary.getWordLength()) {
-            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase() + "' (length " + finalWord.length() + ") must match start word length (" + dictionary.getWordLength() + ")");
+            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase()
+                    + "' (length " + finalWord.length() + ") must match start word length ("
+                    + dictionary.getWordLength() + ")");
         }
         this.finalWord = dictionary.getWord(finalWord);
         if (this.finalWord == null) {
-            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase() + "' not found in dictionary");
+            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase()
+                    + "' not found in dictionary");
         } else if (this.finalWord.isIslandWord()) {
-            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase() + "' is an island word (varying any character does not create another valid word)");
+            throw new PuzzleErrorException("End word '" + finalWord.toUpperCase()
+                    + "' is an island word (varying any character does not create another valid word)");
         }
     }
 
