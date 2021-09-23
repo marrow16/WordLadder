@@ -1,15 +1,19 @@
 package org.example.wordladder.words;
 
 import org.example.wordladder.exceptions.NoResourceForDictionaryException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DictionaryTests {
+class DictionaryTests {
     private static final int[] VALID_DICTIONARY_LENGTHS = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     private static final Map<Integer, Integer> EXPECTED_DICTIONARY_SIZES = new HashMap<>() {{
         put(2, 127);
@@ -29,7 +33,7 @@ public class DictionaryTests {
     }};
 
     @Test
-    public void canLoadDictionaries() {
+    void canLoadDictionaries() {
         for (int wordLength: VALID_DICTIONARY_LENGTHS) {
             Dictionary dictionary = new Dictionary(wordLength);
             assertNotNull(dictionary);
@@ -38,18 +42,20 @@ public class DictionaryTests {
         }
     }
 
-    @Test(expected = NoResourceForDictionaryException.class)
-    public void invalidLengthDictionaryFailsToLoad() {
-        new Dictionary(VALID_DICTIONARY_LENGTHS[0] - 1);
-    }
-
-    @Test(expected = NoResourceForDictionaryException.class)
-    public void invalidLengthDictionaryFailsToLoad2() {
-        new Dictionary(VALID_DICTIONARY_LENGTHS[VALID_DICTIONARY_LENGTHS.length - 1] + 1);
+    @Test
+    void invalidLengthDictionaryFailsToLoad() {
+        assertThrows(NoResourceForDictionaryException.class,
+                () -> new Dictionary(VALID_DICTIONARY_LENGTHS[0] - 1));
     }
 
     @Test
-    public void canLoadDictionariesFromFactory() {
+    void invalidLengthDictionaryFailsToLoad2() {
+        assertThrows(NoResourceForDictionaryException.class,
+                () -> new Dictionary(VALID_DICTIONARY_LENGTHS[VALID_DICTIONARY_LENGTHS.length - 1] + 1));
+    }
+
+    @Test
+    void canLoadDictionariesFromFactory() {
         for (int wordLength: VALID_DICTIONARY_LENGTHS) {
             Dictionary dictionary = Dictionary.Factory.forWordLength(wordLength);
             assertNotNull(dictionary);
@@ -58,7 +64,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void dictionaryWordHasVariants() {
+    void dictionaryWordHasVariants() {
         Dictionary dictionary = Dictionary.Factory.forWordLength(3);
         Word word = dictionary.getWord("cat");
         assertNotNull(word);
@@ -70,7 +76,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void dictionaryWordIsIslandWord() {
+    void dictionaryWordIsIslandWord() {
         Dictionary dictionary = Dictionary.Factory.forWordLength(3);
         Word word = dictionary.getWord("IWI");
         assertNotNull(word);
@@ -81,7 +87,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void differencesBetweenLinkedWords() {
+    void differencesBetweenLinkedWords() {
         Dictionary dictionary = Dictionary.Factory.forWordLength(3);
         Word word = dictionary.getWord("cat");
         assertNotNull(word);
@@ -92,7 +98,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void wordsAreInterLinked() {
+    void wordsAreInterLinked() {
         Dictionary dictionary = Dictionary.Factory.forWordLength(3);
         Word word = dictionary.getWord("cat");
         assertNotNull(word);

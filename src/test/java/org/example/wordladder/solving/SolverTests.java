@@ -1,15 +1,22 @@
 package org.example.wordladder.solving;
 
 import org.example.wordladder.Puzzle;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SolverTests {
+class SolverTests {
     @Test
-    public void solveCatToDog() {
+    void solveCatToDog() {
         Options options = new Options();
         options.setMaximumLadderLength(4);
 
@@ -37,7 +44,7 @@ public class SolverTests {
     }
 
     @Test
-    public void minimumLadderForCatToDog() {
+    void minimumLadderForCatToDog() {
         Options options = new Options();
 
         Puzzle puzzle = new Puzzle("cat", "dog");
@@ -49,7 +56,7 @@ public class SolverTests {
     }
 
     @Test
-    public void minimumLadderForColdToWarm() {
+    void minimumLadderForColdToWarm() {
         Options options = new Options();
 
         Puzzle puzzle = new Puzzle("cold", "warm");
@@ -61,7 +68,7 @@ public class SolverTests {
     }
 
     @Test
-    public void solveColdToWarmAndWarmToCold() {
+    void solveColdToWarmAndWarmToCold() {
         Options options = new Options();
         options.setMaximumLadderLength(5);
 
@@ -84,7 +91,7 @@ public class SolverTests {
     }
 
     @Test
-    public void solveKataToJava() {
+    void solveKataToJava() {
         Options options = new Options();
         options.setMaximumLadderLength(3);
 
@@ -104,7 +111,7 @@ public class SolverTests {
     }
 
     @Test
-    public void minimumLadderForKataToJava() {
+    void minimumLadderForKataToJava() {
         Options options = new Options();
 
         Puzzle puzzle = new Puzzle("kata", "java");
@@ -117,7 +124,7 @@ public class SolverTests {
     }
 
     @Test
-    public void cannotSolveLlamaToArtsy() {
+    void cannotSolveLlamaToArtsy() {
         Options options = new Options();
 
         Puzzle puzzle = new Puzzle("llama", "artsy");
@@ -132,7 +139,7 @@ public class SolverTests {
     }
 
     @Test
-    public void sameWordIsSolvable() {
+    void sameWordIsSolvable() {
         Options options = new Options();
         Puzzle puzzle = new Puzzle("cat", "cat");
         Solver solver = new Solver(puzzle, options);
@@ -144,7 +151,7 @@ public class SolverTests {
     }
 
     @Test
-    public void oneLetterDifferenceIsSolvable() {
+    void oneLetterDifferenceIsSolvable() {
         Options options = new Options();
         options.setMaximumLadderLength(2);
         Puzzle puzzle = new Puzzle("cat", "cot");
@@ -157,7 +164,7 @@ public class SolverTests {
     }
 
     @Test
-    public void twoLettersDifferenceIsSolvable() {
+    void twoLettersDifferenceIsSolvable() {
         Options options = new Options();
         options.setMaximumLadderLength(3);
         Puzzle puzzle = new Puzzle("cat", "bar");
@@ -170,7 +177,7 @@ public class SolverTests {
     }
 
     @Test
-    public void shortCircuitsOnGetMaxLadderLength() {
+    void shortCircuitsOnGetMaxLadderLength() {
         Options options = new Options();
         Puzzle puzzle = new Puzzle("cat", "bar");
         Solver solver = new Solver(puzzle, options);
@@ -192,7 +199,7 @@ public class SolverTests {
     }
 
     @Test
-    public void everythingUnsolvableWithBadMaxLadderLength() {
+    void everythingUnsolvableWithBadMaxLadderLength() {
         Options options = new Options();
         options.setMaximumLadderLength(0);
         Puzzle puzzle = new Puzzle("cat", "dog");
@@ -205,7 +212,7 @@ public class SolverTests {
     }
 
     @Test
-    public void optimizedSmartToMoney() {
+    void optimizedSmartToMoney() {
         Options options = new Options();
         Puzzle puzzle = new Puzzle("smart", "money");
         Solver solver = new Solver(puzzle, options);

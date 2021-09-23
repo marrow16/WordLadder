@@ -1,26 +1,30 @@
 package org.example.wordladder.words;
 
 import org.example.wordladder.exceptions.BadWordException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WordTests {
+class WordTests {
     @Test
-    public void canCreateWord() {
+    void canCreateWord() {
         Word word = new Word("cat");
         assertEquals("CAT", word.toString());
     }
 
-    @Test(expected = BadWordException.class)
-    public void failsToCreateWordWithReservedChar() {
-        new Word("c_t");
+    @Test
+    void failsToCreateWordWithReservedChar() {
+        assertThrows(BadWordException.class,
+                () -> new Word("c_t"));
     }
 
     @Test
-    public void variationPatternsAreCorrect() {
+    void variationPatternsAreCorrect() {
         Word word = new Word("cat");
         List<String> variants = word.getVariationPatterns();
         assertEquals(3, variants.size());
@@ -30,7 +34,7 @@ public class WordTests {
     }
 
     @Test
-    public void differencesAreCorrect() {
+    void differencesAreCorrect() {
         Word cat = new Word("cat");
         Word cot = new Word("cot");
         Word dog = new Word("dog");
@@ -50,7 +54,7 @@ public class WordTests {
     }
 
     @Test
-    public void equalityCheck() {
+    void equalityCheck() {
         Word word1 = new Word("cat");
         Word word2 = new Word("CAT");
         assertTrue(word1.equals(word2));

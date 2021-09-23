@@ -1,16 +1,16 @@
 package org.example.wordladder.solving;
 
 import org.example.wordladder.words.Word;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class GeneratorTests {
+class GeneratorTests {
     @Test
-    public void canGeneratePuzzle() {
+    void canGeneratePuzzle() {
         Generator generator = new Generator(4, 5);
 
         boolean success = false;
