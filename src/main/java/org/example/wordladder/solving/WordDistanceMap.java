@@ -12,19 +12,27 @@ import java.util.Queue;
 public class WordDistanceMap {
     public final Map<Word, Integer> distances = new HashMap<>();
 
-    public WordDistanceMap(Word word) {
+    public WordDistanceMap(Word word, Integer maximumLadderLength) {
         distances.put(word, 1);
         Queue<Word> queue = new ArrayDeque<>();
         queue.add(word);
+        int maxDistance = maximumLadderLength != null ? maximumLadderLength : Integer.MAX_VALUE;
         while (!queue.isEmpty()) {
             Word nextWord = queue.remove();
-            nextWord.getLinkedWords().stream()
-                    .filter(linkedWord -> !distances.containsKey(linkedWord))
-                    .forEach(linkedWord -> {
-                        queue.add(linkedWord);
-                        distances.computeIfAbsent(linkedWord, w -> 1 + distances.get(nextWord));
-                    });
+            int distance = distances.getOrDefault(nextWord, 0) + 1;
+            if (distance <= maxDistance) {
+                nextWord.getLinkedWords().stream()
+                        .filter(linkedWord -> !distances.containsKey(linkedWord))
+                        .forEach(linkedWord -> {
+                            queue.add(linkedWord);
+                            distances.computeIfAbsent(linkedWord, w -> distance);
+                        });
+            }
         }
+    }
+
+    public WordDistanceMap(Word word) {
+        this(word, null);
     }
 
     Optional<Integer> getDistance(Word toWord) {
