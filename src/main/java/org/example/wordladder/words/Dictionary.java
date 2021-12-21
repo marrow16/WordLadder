@@ -24,7 +24,6 @@ public class Dictionary {
     public Dictionary(int wordLength) {
         this.wordLength = wordLength;
         loadWordsFromResources();
-        buildWordVariations();
     }
 
     private void loadWordsFromResources() {
@@ -33,33 +32,25 @@ public class Dictionary {
             throw new NoResourceForDictionaryException("Dictionary resource for word length "
                     + wordLength + " does not exist");
         }
+        WordLinkageBuilder linkageBuilder = new WordLinkageBuilder();
         try {
             Files.lines(Paths.get(resource.toURI()))
-                    .forEach(this::addWord);
+                    .forEach(line -> addWord(line, linkageBuilder));
         } catch (IOException | URISyntaxException e) {
             throw new DictionaryLoadErrorException("Error loading " + wordLength + " letter word dictionary", e);
         }
     }
 
-    private void addWord(String word) {
-        if (!word.isEmpty()) {
-            if (word.length() != wordLength) {
-                throw new BadWordException("Word '" + word + "' (length = "
-                        + word.length() + ") cannot be loaded into " + wordLength + " letter word dictionary");
+    private void addWord(String str, WordLinkageBuilder linkageBuilder) {
+        if (!str.isEmpty()) {
+            if (str.length() != wordLength) {
+                throw new BadWordException("Word '" + str + "' (length = "
+                        + str.length() + ") cannot be loaded into " + wordLength + " letter word dictionary");
             }
-            String upperWord = word.toUpperCase();
-            words.put(upperWord, new Word(upperWord));
+            Word word = new Word(str);
+            words.put(word.toString(), word);
+            linkageBuilder.link(word);
         }
-    }
-
-    private void buildWordVariations() {
-        Map<String, List<Word>> variations = new HashMap<>();
-        words.values()
-                .forEach(word -> word.getVariationPatterns()
-                        .forEach(variationPattern -> variations.computeIfAbsent(variationPattern, s -> new ArrayList<>()).add(word)));
-
-        variations.values()
-                .forEach(wordVariants -> wordVariants.forEach(word -> word.addLinkedWords(wordVariants)));
     }
 
     public boolean isEmpty() {
@@ -74,12 +65,23 @@ public class Dictionary {
         return words.get(word.toUpperCase());
     }
 
-    public Collection<Word> getWords() {
-        return words.values();
-    }
-
     public int getWordLength() {
         return wordLength;
+    }
+
+    private static class WordLinkageBuilder {
+        private final Map<String, List<Word>> variations = new HashMap<>();
+
+        private void link(Word word) {
+            word.getVariationPatterns().forEach(variation -> {
+                List<Word> links = variations.computeIfAbsent(variation, s -> new ArrayList<>());
+                links.forEach(linkedWord -> {
+                    linkedWord.addLinkedWord(word);
+                    word.addLinkedWord(linkedWord);
+                });
+                links.add(word);
+            });
+        }
     }
 
     public static class Factory {

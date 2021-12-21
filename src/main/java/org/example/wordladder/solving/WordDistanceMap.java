@@ -4,15 +4,15 @@ import org.example.wordladder.words.Word;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 
-class WordDistanceMap {
-    private final Map<Word, Integer> distances = new HashMap<>();
-    private int maximumLadderLength;
+public class WordDistanceMap {
+    public final Map<Word, Integer> distances = new HashMap<>();
 
-    WordDistanceMap(Word word) {
+    public WordDistanceMap(Word word) {
         distances.put(word, 1);
         Queue<Word> queue = new ArrayDeque<>();
         queue.add(word);
@@ -31,20 +31,15 @@ class WordDistanceMap {
         return Optional.ofNullable(distances.get(toWord));
     }
 
-    void setMaximumLadderLength(int maximumLadderLength) {
-        this.maximumLadderLength = maximumLadderLength;
-    }
-
-    boolean reachable(Word word) {
+    boolean reachable(Word word, int maximumLadderLength) {
         int distance = distances.getOrDefault(word, -1);
         return distance != -1
                 && distance <= maximumLadderLength;
     }
 
-    boolean reachable(Word word, int existingSize) {
+    boolean reachable(Word word, int maximumLadderLength, int currentLadderLength) {
         int distance = distances.getOrDefault(word, -1);
         return distance != -1
-                && (distance + existingSize) <= maximumLadderLength;
+                && distance <= (maximumLadderLength - currentLadderLength);
     }
-
 }

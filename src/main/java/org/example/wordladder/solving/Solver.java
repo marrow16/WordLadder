@@ -47,9 +47,9 @@ public class Solver {
                 return;
             case 1:
                 // the two words are only one letter different...
+                solutions.add(new Solution(beginWord, endWord));
                 if (maximumLadderLength == 2) {
                     // maximum ladder is 2 so we already have the only answer...
-                    solutions.add(new Solution(beginWord, endWord));
                     return;
                 }
             case 2:
@@ -72,10 +72,9 @@ public class Solver {
             endWord = puzzle.getStartWord();
         }
         endDistances = new WordDistanceMap(endWord);
-        endDistances.setMaximumLadderLength(maximumLadderLength);
         beginWord.getLinkedWords()
                 .parallelStream()
-                .filter(endDistances::reachable)
+                .filter(word -> endDistances.reachable(word, maximumLadderLength))
                 .map(linkedWord -> new CandidateSolution(this, beginWord, linkedWord))
                 .forEach(this::solve);
     }
@@ -87,8 +86,7 @@ public class Solver {
         } else if (candidate.ladder.size() < maximumLadderLength) {
             lastWord.getLinkedWords()
                     .parallelStream()
-                    .filter(linkedWord -> !candidate.seenWords.contains(linkedWord))
-                    .filter(linkedWord -> endDistances.reachable(linkedWord, candidate.ladder.size()))
+                    .filter(linkedWord -> !candidate.seenWords.contains(linkedWord) && endDistances.reachable(linkedWord, maximumLadderLength, candidate.ladder.size()))
                     .map(linkedWord -> new CandidateSolution(candidate, linkedWord))
                     .forEach(this::solve);
         }
