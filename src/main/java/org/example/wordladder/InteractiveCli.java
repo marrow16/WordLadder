@@ -1,7 +1,6 @@
 package org.example.wordladder;
 
 import org.example.wordladder.exceptions.ApplicationErrorException;
-import org.example.wordladder.solving.Generator;
 import org.example.wordladder.solving.Options;
 import org.example.wordladder.solving.Solution;
 import org.example.wordladder.solving.Solver;
@@ -31,8 +30,8 @@ public class InteractiveCli {
 
     private static final int MINIMUM_WORD_LENGTH = 2;
     private static final int MAXIMUM_WORD_LENGTH = 15;
-    private static final int MINIMUM_LADDER_LENGTH = 4;
-    private static final int MAXIMUM_LADDER_LENGTH = 20;
+    private static final int MINIMUM_LADDER_LENGTH = 1;
+    private static final int MAXIMUM_LADDER_LENGTH = 30;
 
     private static final DecimalFormat FORMAT_SECONDS = new DecimalFormat("#,##0.000");
     private static final DecimalFormat FORMAT_MILLIS = new DecimalFormat("#0.00");
@@ -127,17 +126,13 @@ public class InteractiveCli {
             }
 
             System.out.println();
-            String input = lineReader.readLine("Run again? [y/n/g]: ");
-            if ("g".equals(input)) {
-                runGenerator();
-            } else {
-                again = !"n".equals(input);
-                if (again) {
-                    onStep = Step.START_STEP;
-                    options = new Options();
-                    puzzle = new Puzzle();
-                    System.out.println();
-                }
+            String input = lineReader.readLine(PROMPT + "Run again? [y/n]: ");
+            again = !"n".equals(input);
+            if (again) {
+                onStep = Step.START_STEP;
+                options = new Options();
+                puzzle = new Puzzle();
+                System.out.println();
             }
         }
     }
@@ -153,7 +148,7 @@ public class InteractiveCli {
             AtomicLong pageStart = new AtomicLong(0);
             solutions.sort(Solution::compareTo);
             while (pageStart.get() < solutions.size()) {
-                String more = lineReader.readLine("List" + (pageStart.get() == 0 ? "" : " more")
+                String more = lineReader.readLine(PROMPT + "List" + (pageStart.get() == 0 ? "" : " more")
                         + " solutions? (Enter 'n' for no, 'y' or return for next 10, 'all' for all or how many): ");
                 if ("n".equals(more)) {
                     break;
@@ -213,60 +208,6 @@ public class InteractiveCli {
             return FORMAT_SECONDS.format(millis / MAX_MILLIS) + "sec";
         }
         return FORMAT_MILLIS.format(millis) + "ms";
-    }
-
-    private void runGenerator() {
-        System.out.println(green("Generate Random Ladder Puzzle..."));
-        String input;
-        int wordLength = 0;
-        int ladderLength = 0;
-        boolean inputValid = false;
-        while (!inputValid) {
-            input = lineReader.readLine("Word length? ["
-                    + MINIMUM_WORD_LENGTH + "-" + MAXIMUM_WORD_LENGTH + "]: ");
-            try {
-                wordLength = Integer.parseInt(input);
-                if (wordLength < MINIMUM_WORD_LENGTH || wordLength > MAXIMUM_WORD_LENGTH) {
-                    throw new IllegalArgumentException();
-                }
-                inputValid = true;
-            } catch (Exception e) {
-                System.out.println(red("              Please enter a number between "
-                        + MINIMUM_WORD_LENGTH + " and " + MAXIMUM_WORD_LENGTH + "!"));
-            }
-        }
-        inputValid = false;
-        while (!inputValid) {
-            input = lineReader.readLine("Ladder length? ["
-                    + MINIMUM_LADDER_LENGTH + "-" + MAXIMUM_LADDER_LENGTH + "]: ");
-            try {
-                ladderLength = Integer.parseInt(input);
-                if (ladderLength < MINIMUM_LADDER_LENGTH || ladderLength > MAXIMUM_LADDER_LENGTH) {
-                    throw new IllegalArgumentException();
-                }
-                inputValid = true;
-            } catch (Exception e) {
-                System.out.println(red("                Please enter a number between "
-                        + MINIMUM_LADDER_LENGTH + " and " + MAXIMUM_LADDER_LENGTH + "!"));
-            }
-        }
-        Generator generator = new Generator(wordLength, ladderLength);
-        List<Word> newPuzzle = null;
-        while (newPuzzle == null) {
-            try {
-                newPuzzle = generator.generate();
-            } catch (IllegalStateException e) {
-                System.out.println(red(e.getMessage()));
-            }
-        }
-        System.out.println("Generated puzzle: " + green(newPuzzle));
-        puzzle = new Puzzle(newPuzzle.get(0).toString(), newPuzzle.get(newPuzzle.size() - 1).toString());
-        System.out.println(Step.GET_START_WORD.getPrompt() + green(puzzle.getStartWord()));
-        System.out.println(Step.GET_FINAL_WORD.getPrompt() + green(puzzle.getFinalWord()));
-        options = new Options();
-        options.setMaximumLadderLength(ladderLength);
-        System.out.println(Step.GET_MAXIMUM_LADDER_LENGTH.getPrompt() + green(ladderLength));
-        onStep = Step.DONE;
     }
 
     private void processStepInput(String input) {

@@ -4,7 +4,6 @@ import org.example.wordladder.exceptions.BadWordException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Word {
     private static final char VARIATION_CHAR = '_';
@@ -38,12 +37,8 @@ public class Word {
         return result;
     }
 
-    void addLinkedWords(List<Word> variants) {
-        this.linkedWords.addAll(
-                variants.stream()
-                        .filter(word -> word != this)
-                        .collect(Collectors.toList())
-        );
+    void addLinkedWord(Word word) {
+        linkedWords.add(word);
     }
 
     public List<Word> getLinkedWords() {
@@ -58,17 +53,6 @@ public class Word {
         int result = 0;
         for (int ch = 0; ch < wordChars.length; ch++) {
             result += (wordChars[ch] != other.wordChars[ch] ? 1 : 0);
-        }
-        return result;
-    }
-
-    public int firstDifference(Word other) {
-        int result = -1;
-        for (int ch = 0; ch < wordChars.length; ch++) {
-            if (wordChars[ch] != other.wordChars[ch]) {
-                result = ch;
-                break;
-            }
         }
         return result;
     }
