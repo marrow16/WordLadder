@@ -71,7 +71,7 @@ public class Solver {
             beginWord = puzzle.getFinalWord();
             endWord = puzzle.getStartWord();
         }
-        endDistances = new WordDistanceMap(endWord);
+        endDistances = new WordDistanceMap(endWord, maximumLadderLength - 1);
         beginWord.getLinkedWords()
                 .parallelStream()
                 .filter(word -> endDistances.reachable(word, maximumLadderLength))
